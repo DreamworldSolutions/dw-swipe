@@ -2,9 +2,25 @@ import forEach from 'lodash-es/forEach';
 export const DwSwipe = (baseElement) => class extends baseElement {
   static get properties() {
     return {
+
+      /**
+       * Swipe is applied or not
+       */
       swipeEnabled: { type: Boolean },
+
+      /**
+       * swipeMinDisplacement value in px. If "touch/mouse move distance" will be lower than this value then swiper will not move.
+       */
       swipeMinDisplacement: { type: Number },
+
+      /**
+       * Could be 'horizontal' or 'vertical' (for vertical slider).
+       */
       swipeDirection: { type: String, reflect: true },
+
+      /**
+       * How many slides are a move to next/previous?
+       */
       swipeMultiplier: { type: Number }
     }
   }
@@ -14,6 +30,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     this.swipeEnabled = false;
     this.swipeMinDisplacement = 25;
     this.swipeDirection = 'horizontal';
+    this.swipeMultiplier = 1;
 
     //Maximum distance allowed at the same time in perpendicular direction;
     this.__restraint = 50;
@@ -109,11 +126,11 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    * @protected
    */
   _swipeFindNext() {
-    let newIndex =  this.__currentSlideIndex + 1;
-    let element = this._getSwipeSlideEl(newIndex);
-    if(!element) {
-      return this._getSwipeCurrentSlideTop();
-    }
+    let swipeMultiplier = this.swipeMultiplier > 0 ? this.swipeMultiplier: 1;
+    let newIndex =  this.__currentSlideIndex + swipeMultiplier;
+    let swipeSlideElements = this._getSwipeSlideElements();
+    let lastSlideElementIndex = swipeSlideElements.length - 1 || 0;
+    let element = this._getSwipeSlideEl(newIndex) || this._getSwipeSlideEl(lastSlideElementIndex);
     return this.swipeDirection == 'horizontal' ? element.offsetLeft: element.offsetTop;
   }
 
@@ -122,11 +139,9 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    * @protected
    */
   _swipeFindPrev() {
-    let newIndex =  this.__currentSlideIndex - 1;
-    let element = this._getSwipeSlideEl(newIndex);
-    if(!element) {
-      return this._getSwipeCurrentSlideTop();
-    }
+    let swipeMultiplier = this.swipeMultiplier > 0 ? this.swipeMultiplier: 1;
+    let newIndex =  this.__currentSlideIndex - swipeMultiplier;
+    let element = this._getSwipeSlideEl(newIndex) || this._getSwipeSlideEl(0);
     return this.swipeDirection == 'horizontal' ? element.offsetLeft: element.offsetTop;
   }
 
@@ -135,7 +150,18 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    * @protected
    */
   _swipeRestore() {
-    this._swipeScrollTo(this._getSwipeCurrentSlideTop());
+    let offset = this._getSwipeCurrentSlideTop();
+    if ((offset + this._getSwipeContainerLength()) >= this._getSwipeSliderLength()) {
+      this._swipeScrollTo(this._getSwipeSliderLength() - this._getSwipeContainerLength());
+      return;
+    }
+
+    if(offset < 0) {
+      this._swipeScrollTo(0);
+      return;
+    }
+
+    this._swipeScrollTo(offset);
   }
 
   /**
