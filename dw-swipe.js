@@ -13,6 +13,9 @@ export const DwSwipe = (baseElement) => class extends baseElement {
        */
       swipeMinDisplacement: { type: Number },
 
+
+      swipeRestraint: {type: Number},
+
       /**
        * Could be 'horizontal' or 'vertical' (for vertical slider).
        */
@@ -29,11 +32,9 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     super();
     this.swipeEnabled = false;
     this.swipeMinDisplacement = 25;
+    this.swipeRestraint = 25;
     this.swipeDirection = 'horizontal';
     this.swipeMultiplier = 1;
-
-    //Maximum distance allowed at the same time in perpendicular direction;
-    this.__restraint = 50;
 
     this.__swipePointerDown = false;
     this.__resetPosition();
@@ -53,18 +54,8 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     }
 
     this.__swipeEnabled = value;
-    //Update swipe style
-    this._swipeUpdateStyles();
-    this.__siwpeBindUnbindEvents();
-  }
-
-  __siwpeBindUnbindEvents() {
-    //Bind or unbind event;
-    if (this.__swipeEnabled) {
-      this._swipeInit();
-    } else {
-      this._swipeDestroy();
-    }
+    this.__swipeEnabled ? this._swipeInit() : this._swipeDestroy();
+    //TODO: Do we require to request update from here?
   }
 
   /**
@@ -99,16 +90,21 @@ export const DwSwipe = (baseElement) => class extends baseElement {
         throw new Error('Something wrong with your swipe slider frame selector');
       }
 
+      //Old event listner remove.
+      this.__swipeUnbindEventListner();
       this.__swipeBindEventListner();
       this._swipeUpdateStyles();
     });
   }
+
+  //TODO: Update method name styling, use __ for private methods.
 
   /**
    * Destroy swipe.
    * @protected
    */
   _swipeDestroy() {
+    this._swipeUpdateStyles();
     this.__swipeUnbindEventListner();
   }
 
@@ -150,7 +146,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    * @protected
    */
   _swipeRestore() {
-    let offset = this._getSwipeCurrentSlideTop();
+    let offset = this._getSwipeCurrentOffest();
     if ((offset + this._getSwipeContainerLength()) >= this._getSwipeSliderLength()) {
       this._swipeScrollTo(this._getSwipeSliderLength() - this._getSwipeContainerLength());
       return;
@@ -285,7 +281,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    * @return {Number} current slide top length.
    * @protected
    */
-  _getSwipeCurrentSlideTop() {
+  _getSwipeCurrentOffest() {
     let element =  this._getSwipeSlideEl(this.__currentSlideIndex);
     if (this.swipeDirection == 'horizontal') {
       return element && element.offsetLeft || 0;
@@ -344,9 +340,6 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       return;
     }
     
-    //Old event listner remove.
-    this._swipeDestroy();
-
     //For swipe start
     this._swipeContainer.addEventListener('mousedown', this.__swipeStart);
     this._swipeContainer.addEventListener('touchstart', this.__swipeStart);
@@ -399,6 +392,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     this.__position.startX = this.__swipeEventUnify(e).clientX;
     this.__position.startY = this.__swipeEventUnify(e).clientY;
     this.__currentSlideIndex = this._getSwipeCurrentSlideIndex();
+    this.__swipeThresholdCrossed = false;
   }
 
   /**
@@ -407,18 +401,23 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    */
   __swipeMove(e) {
     if (this.__swipePointerDown) {
+      //TODO: Do we need to throttle this processing? e.g. at 25 to 30ms?
       this.__position.endX = this.__swipeEventUnify(e).clientX;
       this.__position.endY = this.__swipeEventUnify(e).clientY;
 
       this.__position.distX = this.__position.endX - this.__position.startX;
       this.__position.distY = this.__position.endY - this.__position.startY;
 
-      this.__swipeDisableTransition();
-      let currentOffset = this._getSwipeCurrentSlideTop();
+      let currentOffset = this._getSwipeCurrentOffest(); 
       let positionOffset = this.swipeDirection == 'horizontal' ? this.__position.distX : this.__position.distY;
 
-      if (Math.abs(positionOffset) <= this.__restraint) {
+      if (!this.__swipeThresholdCrossed && Math.abs(positionOffset) <= this.swipeRestraint) {
         return;
+      }
+
+      if(!this.__swipeThresholdCrossed) {
+        this.__swipeThresholdCrossed = true;
+        this.__swipeDisableTransition();
       }
 
       this._swipeScrollTo(currentOffset - positionOffset);
@@ -452,6 +451,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     let swipeEvent;
     let distX = Math.abs(this.__position.distX);
     let distY = Math.abs(this.__position.distY);
+    //TODO: Update logic
     if (distX >= this.swipeMinDisplacement && distY <= this.__restraint) {
       swipeEvent = (this.__position.distX < 0) ? 'right' : 'left';
     }
@@ -468,6 +468,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
   __fireSwipeEvent() {
     let swipeEvent = this.__detectSwipeEvent();
 
+    //TODO: Update logic
     if ((this.swipeDirection == 'vertical' && swipeEvent == 'bottom')
       || (this.swipeDirection == 'horizontal' && swipeEvent == 'right')) {
       this._swipeNext();

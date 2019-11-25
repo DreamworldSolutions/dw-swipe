@@ -10,12 +10,7 @@ npm install @dreamworld/dw-swipe
 
 ## Usage
 
-### Import a dw-swiper mixin 
-```js
-@import {DwSwipe} from '@dreamworld/dw-swipe';
-```
-### Extend a mixin apply to your class
-##### Example
+1. Apply Mixin to your view-element Class.
 ```js
 //Import dw -swiper mixin
 @import {DwSwipe} from '@dreamworld/dw-swipe';
@@ -27,8 +22,8 @@ npm install @dreamworld/dw-swipe
 class swiperList extends DwSwipe(LitElement) {}
 ```
 
-### Add  dw-swipe HTML Layout
-Now, we need to add basic dw-swipe layout to:
+2. Set required layout in your view-element template.
+e.g. 
 ```html
 <!-- Slider main container -->  
 <div class="dw-swipe-container">  
@@ -42,9 +37,7 @@ Now, we need to add basic dw-swipe layout to:
 </div>
 ```
 
-### Container CSS Styles/Size
-After that, we may need to set Swiper size:
-
+3. Set fix width/height to the `.dw-swipe-container`.
 ```css
 .dw-swipe-container {  
 	width: 600px;  
