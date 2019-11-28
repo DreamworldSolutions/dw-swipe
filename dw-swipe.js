@@ -177,10 +177,11 @@ export const DwSwipe = (baseElement) => class extends baseElement {
 
     //If slider has no more slide a next slide
     if ((offset + this._getSwipeContainerLength()) >= this._getSwipeSliderLength()) {
-      this._swipeScrollToPosition(this._getSwipeSliderLength() - this._getSwipeContainerLength());
-      return;
+      offset = this._getSwipeSliderLength() - this._getSwipeContainerLength();
     }
+
     this._swipeScrollToPosition(offset);
+    this.dispatchEvent(new CustomEvent('swipe-next', { detail: {offset}}, { bubbles: false}));
   }
 
   /**
@@ -192,10 +193,11 @@ export const DwSwipe = (baseElement) => class extends baseElement {
 
     //If preve element is first element of slider.
     if (offset < 0) {
-      this._swipeScrollToPosition(0);
-      return;
+      offset = 0;
     }
+
     this._swipeScrollToPosition(offset);
+    this.dispatchEvent(new CustomEvent('swipe-prev', { detail: {offset}}, { bubbles: false}));
   }
 
   /**
@@ -206,10 +208,9 @@ export const DwSwipe = (baseElement) => class extends baseElement {
 
     if (this.swipeDirection == 'horizontal') {
       this._swipeSliderFrame.style[this.__webkitOrNot()] = `translate3d(${-1 * pos}px, 0, 0)`;
-      return;
+    } else {
+      this._swipeSliderFrame.style[this.__webkitOrNot()] = `translate3d(0, ${-1 * pos}px, 0)`;
     }
-
-    this._swipeSliderFrame.style[this.__webkitOrNot()] = `translate3d(0, ${-1 * pos}px, 0)`;
   }
 
   /**
@@ -217,6 +218,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    * @protected
    */
   _swipeSctollToIndex(index) {
+    this.__swipeEnableTransition();
     let element = this._getSwipeSlideEl(index) || this._getSwipeSlideEl(0);
     let offset = this.swipeDirection == 'horizontal' ? element.offsetLeft: element.offsetTop;
     //If preve element is first element of slider.
@@ -266,10 +268,8 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       let elmentTopLength = this.swipeDirection == 'horizontal' ? elementBoundary.left : elementBoundary.top;
 
       let elementBottomLength = this.swipeDirection == 'horizontal' ? elementBoundary.right : elementBoundary.bottom;
-
-      if (elmentTopLength >= swipeContainerTopLength && elementBottomLength <= swipeContainerBottomLength) {
+      if (Math.trunc(elmentTopLength) >= Math.trunc(swipeContainerTopLength) && Math.trunc(elementBottomLength) <= Math.trunc(swipeContainerBottomLength)) {
         currentSlide = index;
-        return false;
       }
     });
     return currentSlide;
