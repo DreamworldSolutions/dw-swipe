@@ -444,6 +444,16 @@ export const DwSwipe = (baseElement) => class extends baseElement {
         return;
       }
 
+      //If current slides is first slide then swipe is not move prev
+      if(currentOffset >= 0 && positionOffset > 0) {
+        return;
+      }
+      
+      //If current slides is last slide then swipe is not move next
+      if ((currentOffset + this._getSwipeContainerLength()) >= this._getSwipeSliderLength() && positionOffset < 0) {
+        return;
+      }
+
       if(!this.__swipeThresholdCrossed) {
         this.__swipeThresholdCrossed = true;
         this.__swipeDisableTransition();
