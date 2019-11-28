@@ -49,7 +49,7 @@ e.g.
 ### Properties
 | Name | Type | Default |  Description |
 | :------- | ----: | :---: |  :---: |
-| swipeEnabled | Boolean | false | Swipe is applied or not |
+| swipeDisabled | Boolean | false | Swipe is disabled or not |
 | swipeDirection | String | horizontal | Could be 'horizontal' or 'vertical' (for vertical slider). |
 | swipeMinDisplacement | Number | 25 | swipeMinDisplacement value in px. If "touch/mouse move distance" will be lower than this value then swiper will not move |
 | swipeMultiplier | Number | 1 | How many slides are a move to next/previous?|
@@ -60,5 +60,6 @@ e.g.
 | _swipeRestore() | Restore swipe to current slide |
 | _swipeNext() | Swipe to next slide |
 | _swipePrev() | Swipe to previous slide |
-| _swipeScrollTo(pos) | Swipe to specific position. **pos**: Passed to   swipe position |
+| _swipeScrollToPosition(pos) | Swipe to specific position. **pos**: Passed to   swipe position |
+| _swipeScrollToPosition(pos) | Swipe to specific position. **pos**: Passed to   swipe position |
 | _swipeDestroy | Destroy a swipe |

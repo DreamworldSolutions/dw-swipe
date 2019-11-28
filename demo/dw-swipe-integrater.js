@@ -49,8 +49,7 @@ export class DwSwipeIntegrater extends DwSwipe(LitElement) {
 
   constructor() {
     super();
-    this.swipeEnabled = true;
-    this.swipeAlign = 'center';
+    this.swipeMinDisplacement = 50;
   }
 
   render() {
@@ -69,10 +68,6 @@ export class DwSwipeIntegrater extends DwSwipe(LitElement) {
         </div>
       </div>
     `
-  }
-
-  firstUpdated() {
-    super.firstUpdated && super.firstUpdated();
   }
 
 }

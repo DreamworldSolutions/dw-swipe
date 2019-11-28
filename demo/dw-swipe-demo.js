@@ -16,11 +16,6 @@ export class DwSwipeDemo extends LitElement {
   static get styles() {
     return [
       css`
-        :host {
-          display: flex;
-          flex-wrap: wrap;
-        }
-
         dw-swipe-integrater {
           margin: 16px;
         }
@@ -30,8 +25,25 @@ export class DwSwipeDemo extends LitElement {
 
   render(){
     return html `
-      <dw-swipe-integrater></dw-swipe-integrater>
-      <dw-swipe-integrater .swipeDirection=${"vertical"}></dw-swipe-integrater>
+      <div>
+        <h1>Horizotnal swipe</h1>
+        <dw-swipe-integrater></dw-swipe-integrater>
+      </div>
+
+      <div>
+        <h1>Vertical swipe</h1>
+        <dw-swipe-integrater .swipeDirection=${"vertical"}></dw-swipe-integrater>
+      </div>
+
+      <div>
+        <h1>Horizotnal swipe with 2 slide swipe</h1>
+        <dw-swipe-integrater .swipeMultiplier=${2}></dw-swipe-integrater>
+      </div>
+
+      <div>
+        <h1>Vertical swipe with 2 slide swipe</h1>
+        <dw-swipe-integrater .swipeDirection=${"vertical"} .swipeMultiplier=${2}></dw-swipe-integrater>
+      </div>
     `
   }
 }

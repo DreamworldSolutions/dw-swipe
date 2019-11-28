@@ -4,9 +4,9 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     return {
 
       /**
-       * Swipe is applied or not
+       * Swipe is disabled or not.
        */
-      swipeEnabled: { type: Boolean },
+      swipeDisabled: { type: Boolean },
 
       /**
        * swipeMinDisplacement value in px. If "touch/mouse move distance" will be lower than this value then swiper will not move.
@@ -30,39 +30,39 @@ export const DwSwipe = (baseElement) => class extends baseElement {
 
   constructor() {
     super();
-    this.swipeEnabled = false;
     this.swipeMinDisplacement = 25;
     this.swipeRestraint = 25;
     this.swipeDirection = 'horizontal';
     this.swipeMultiplier = 1;
-
+    
     this.__swipePointerDown = false;
     this.__resetPosition();
-
+    
     this.__swipeStart = this.__swipeStart.bind(this);
     this.__swipeEnd = this.__swipeEnd.bind(this);
     this.__swipeMove = this.__swipeMove.bind(this);
+    this.swipeDisabled = false;
   }
 
   /**
-   * Setter of swipeEnabled.
+   * Setter of swipeDisabled.
    */
-  set swipeEnabled(value) {
-    let oldValue = this.__swipeEnabled;
+  set swipeDisabled(value) {
+    let oldValue = this.__swipeDisabled;
     if (oldValue == value) {
       return;
     }
 
-    this.__swipeEnabled = value;
-    this.__swipeEnabled ? this._swipeInit() : this._swipeDestroy();
-    //TODO: Do we require to request update from here?
+    this.requestUpdate('swipeDisabled', oldValue);
+    this.__swipeDisabled = value;
+    this.__swipeDisabled ? this._swipeDestroy() : this._swipeInit();
   }
 
   /**
    * Getter of swiperEnabled.
    */
-  get swipeEnabled() {
-    return this.__swipeEnabled;
+  get swipeDisabled() {
+    return this.__swipeDisabled;
   }
 
   disconnectedCallback() {
@@ -71,11 +71,21 @@ export const DwSwipe = (baseElement) => class extends baseElement {
   }
 
   /**
+   * Apply swipe.
+   */
+  firstUpdated() {
+    super.firstUpdated && super.firstUpdated();
+    this.updateComplete.then(() => {
+      this.swipeDisabled ? this._swipeDestroy() : this._swipeInit();
+    });
+  }
+
+  /**
    * Intialz swipe when swipe is Enable.
    * @protected
    */
   _swipeInit() {
-    if (!this.swipeEnabled) {
+    if (this.swipeDisabled) {
       return;
     }
 
@@ -93,18 +103,16 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       //Old event listner remove.
       this.__swipeUnbindEventListner();
       this.__swipeBindEventListner();
-      this._swipeUpdateStyles();
+      this._swipeUpdateStyling();
     });
   }
-
-  //TODO: Update method name styling, use __ for private methods.
 
   /**
    * Destroy swipe.
    * @protected
    */
   _swipeDestroy() {
-    this._swipeUpdateStyles();
+    this._swipeUpdateStyling();
     this.__swipeUnbindEventListner();
   }
 
@@ -112,7 +120,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    * Update swipe style.
    * @protected
    */
-  _swipeUpdateStyles() {
+  _swipeUpdateStyling() {
     this.__swipeManageContainerStyle();
     this.__swipeManageSliderFrameStyle();
   }
@@ -148,16 +156,16 @@ export const DwSwipe = (baseElement) => class extends baseElement {
   _swipeRestore() {
     let offset = this._getSwipeCurrentOffest();
     if ((offset + this._getSwipeContainerLength()) >= this._getSwipeSliderLength()) {
-      this._swipeScrollTo(this._getSwipeSliderLength() - this._getSwipeContainerLength());
+      this._swipeScrollToPosition(this._getSwipeSliderLength() - this._getSwipeContainerLength());
       return;
     }
 
     if(offset < 0) {
-      this._swipeScrollTo(0);
+      this._swipeScrollToPosition(0);
       return;
     }
 
-    this._swipeScrollTo(offset);
+    this._swipeScrollToPosition(offset);
   }
 
   /**
@@ -169,10 +177,10 @@ export const DwSwipe = (baseElement) => class extends baseElement {
 
     //If slider has no more slide a next slide
     if ((offset + this._getSwipeContainerLength()) >= this._getSwipeSliderLength()) {
-      this._swipeScrollTo(this._getSwipeSliderLength() - this._getSwipeContainerLength());
+      this._swipeScrollToPosition(this._getSwipeSliderLength() - this._getSwipeContainerLength());
       return;
     }
-    this._swipeScrollTo(offset);
+    this._swipeScrollToPosition(offset);
   }
 
   /**
@@ -184,23 +192,45 @@ export const DwSwipe = (baseElement) => class extends baseElement {
 
     //If preve element is first element of slider.
     if (offset < 0) {
-      this._swipeScrollTo(0);
+      this._swipeScrollToPosition(0);
       return;
     }
-    this._swipeScrollTo(offset);
+    this._swipeScrollToPosition(offset);
   }
 
   /**
    * Swipe to specific position.
    * @protected
    */
-  _swipeScrollTo(pos) {
+  _swipeScrollToPosition(pos) {
+
     if (this.swipeDirection == 'horizontal') {
       this._swipeSliderFrame.style[this.__webkitOrNot()] = `translate3d(${-1 * pos}px, 0, 0)`;
       return;
     }
 
     this._swipeSliderFrame.style[this.__webkitOrNot()] = `translate3d(0, ${-1 * pos}px, 0)`;
+  }
+
+  /**
+   * Swipe to specific index.
+   * @protected
+   */
+  _swipeSctollToIndex(index) {
+    let element = this._getSwipeSlideEl(index) || this._getSwipeSlideEl(0);
+    let offset = this.swipeDirection == 'horizontal' ? element.offsetLeft: element.offsetTop;
+    //If preve element is first element of slider.
+    if (offset < 0) {
+      this._swipeScrollToPosition(0);
+      return;
+    }
+
+    //If slider has no more slide a next slide
+    if ((offset + this._getSwipeContainerLength()) >= this._getSwipeSliderLength()) {
+      this._swipeScrollToPosition(this._getSwipeSliderLength() - this._getSwipeContainerLength());
+      return;
+    }
+    this._swipeScrollToPosition(offset);
   }
 
   /**
@@ -295,7 +325,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    */
   __swipeManageContainerStyle() {
     if (this._swipeContainer) {
-      if(this.swipeEnabled) {
+      if(!this.swipeDisabled) {
         this._swipeContainer.style.overflow = 'hidden';
         this._swipeContainer.style.overscrollBehavior = 'none';
         return;
@@ -336,7 +366,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     }
 
     //If swipe is disabled.
-    if (!this.swipeEnabled) {
+    if (this.swipeDisabled) {
       return;
     }
     
@@ -401,7 +431,6 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    */
   __swipeMove(e) {
     if (this.__swipePointerDown) {
-      //TODO: Do we need to throttle this processing? e.g. at 25 to 30ms?
       this.__position.endX = this.__swipeEventUnify(e).clientX;
       this.__position.endY = this.__swipeEventUnify(e).clientY;
 
@@ -420,7 +449,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
         this.__swipeDisableTransition();
       }
 
-      this._swipeScrollTo(currentOffset - positionOffset);
+      this._swipeScrollToPosition(currentOffset - positionOffset);
     }
   }
 
@@ -451,12 +480,11 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     let swipeEvent;
     let distX = Math.abs(this.__position.distX);
     let distY = Math.abs(this.__position.distY);
-    //TODO: Update logic
-    if (distX >= this.swipeMinDisplacement && distY <= this.__restraint) {
-      swipeEvent = (this.__position.distX < 0) ? 'right' : 'left';
+    if (this.swipeDirection == 'horizontal' && distX >= this.swipeMinDisplacement) {
+      swipeEvent = (this.__position.distX < 0) ? 'next' : 'prev';
     }
-    else if (distY >= this.swipeMinDisplacement && distX <= this.__restraint) {
-      swipeEvent = (this.__position.distY < 0) ? 'bottom' : 'top';
+    else if (this.swipeDirection == 'vertical' && distY >= this.swipeMinDisplacement) {
+      swipeEvent = (this.__position.distY < 0) ? 'next' : 'prev';
     }
     return swipeEvent;
   }
@@ -468,15 +496,12 @@ export const DwSwipe = (baseElement) => class extends baseElement {
   __fireSwipeEvent() {
     let swipeEvent = this.__detectSwipeEvent();
 
-    //TODO: Update logic
-    if ((this.swipeDirection == 'vertical' && swipeEvent == 'bottom')
-      || (this.swipeDirection == 'horizontal' && swipeEvent == 'right')) {
+    if (swipeEvent == 'next') {
       this._swipeNext();
       return;
     }
 
-    if ((this.swipeDirection == 'vertical' && swipeEvent == 'top')
-      || (this.swipeDirection == 'horizontal' && swipeEvent == 'left')) {
+    if (swipeEvent == 'prev') {
       this._swipePrev();
       return;
     }
