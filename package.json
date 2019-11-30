@@ -2,7 +2,7 @@
   "name": "@dreamworld/dw-swipe",
   "version": "0.0.0-development",
   "description": "A LitElement mixin to implement Swipe behavior. e.g. It's used in Kerika board to scroll column one at a time through swipe gesture.",
-  "main": "index.js",
+  "main": "dw-swipe.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -14,6 +14,9 @@
     "url": "git+https://github.com/DreamworldSolutions/dw-swipe.git"
   },
   "devDependencies": {
+    "@webcomponents/webcomponentsjs": "^2.2.10",
+    "lit-element": "^2.2.1",
+    "lodash-es": "^4.17.15",
     "semantic-release": "16.0.0-beta.23"
   },
   "resolutions": {
