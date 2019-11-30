@@ -51,7 +51,8 @@ e.g.
 | :------- | ----: | :---: |  :---: |
 | swipeDisabled | Boolean | false | Swipe is disabled or not |
 | swipeDirection | String | horizontal | Could be 'horizontal' or 'vertical' (for vertical slider). |
-| swipeMinDisplacement | Number | 25 | swipeMinDisplacement value in px. If "touch/mouse move distance" will be lower than this value then swiper will not move |
+| swipeMinDisplacement | Number | 25 | Number of pixels. If total movement (mouse or touch) is less than this number, than it won't be considered a swipe event and at the end scroll will be restored to the start position. |
+| swipeRestraint | Number | 25 | Number of pixels. Actual move/scroll operation will be started only when user moves (mouse or touch) by these many pixels. |
 | swipeMultiplier | Number | 1 | How many slides are a move to next/previous?|
 
 ### Methods
@@ -61,5 +62,5 @@ e.g.
 | _swipeNext() | Swipe to next slide |
 | _swipePrev() | Swipe to previous slide |
 | _swipeScrollToPosition(pos) | Swipe to specific position. **pos**: Passed to   swipe position |
-| _swipeScrollToPosition(pos) | Swipe to specific position. **pos**: Passed to   swipe position |
-| _swipeDestroy | Destroy a swipe |
+| _swipeSctollToIndex(index) | Swipe to specific Slide (identified by the 0-based index.).|
+| _swipeDestroy() | Destroy a swipe |
