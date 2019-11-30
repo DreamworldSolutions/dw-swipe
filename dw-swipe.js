@@ -9,20 +9,28 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       swipeDisabled: { type: Boolean },
 
       /**
-       * swipeMinDisplacement value in px. If "touch/mouse move distance" will be lower than this value then swiper will not move.
+       * Number of pixels. If total movement (mouse or touch) is less than this number, than it won't be considered a
+       * swipe event and at the end scroll will be restored to the start position.
+       * Default value: `25`.
        */
       swipeMinDisplacement: { type: Number },
 
-
+      /**
+       * Number of pixels. Actual move/scroll operation will be started only when user moves (mouse or touch) by
+       * these many pixels. 
+       * Default value: `25`.
+       */
       swipeRestraint: {type: Number},
 
       /**
        * Could be 'horizontal' or 'vertical' (for vertical slider).
+       * Default value: `horizontal`.
        */
       swipeDirection: { type: String, reflect: true },
 
       /**
        * How many slides are a move to next/previous?
+       * Default value: `1`
        */
       swipeMultiplier: { type: Number }
     }
