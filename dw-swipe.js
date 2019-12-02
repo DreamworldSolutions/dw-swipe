@@ -498,10 +498,10 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     let swipeEvent;
     let distX = Math.abs(this.__position.distX);
     let distY = Math.abs(this.__position.distY);
-    if (this.swipeDirection == 'horizontal' && distX >= this.swipeMinDisplacement) {
+    if (this.swipeDirection == 'horizontal' && distX >= this.swipeMinDisplacement && distX > distY) {
       swipeEvent = (this.__position.distX < 0) ? 'next' : 'prev';
     }
-    else if (this.swipeDirection == 'vertical' && distY >= this.swipeMinDisplacement) {
+    else if (this.swipeDirection == 'vertical' && distY >= this.swipeMinDisplacement && distY > distX) {
       swipeEvent = (this.__position.distY < 0) ? 'next' : 'prev';
     }
     return swipeEvent;

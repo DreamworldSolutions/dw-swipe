@@ -21,8 +21,8 @@ export class DwSwipeIntegrater extends DwSwipe(LitElement) {
         }
 
         .dw-swipe-container {
-          width: 450px;
-          height: 450px;
+          width: 250px;
+          height: 250px;
         }
 
         .dw-swipe-child {
