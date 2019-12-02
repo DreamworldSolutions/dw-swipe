@@ -426,6 +426,11 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    * @private
    */
   __swipeStart(e) {
+    //Don't start swipe operation when user has used more than 1 finger. 
+    if(e.touches && e.touches.length > 1) {
+      return;
+    }
+    
     this.__swipePointerDown = true;
     this.__position.startX = this.__swipeEventUnify(e).clientX;
     this.__position.startY = this.__swipeEventUnify(e).clientY;
