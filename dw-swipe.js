@@ -453,7 +453,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       }
 
       //If current slides is first slide then swipe is not move prev
-      if(currentOffset >= 0 && positionOffset > 0) {
+      if(currentOffset == 0) {
         return;
       }
       
