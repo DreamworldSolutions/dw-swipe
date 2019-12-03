@@ -457,10 +457,18 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       this.__position.distX = this.__position.endX - this.__position.startX;
       this.__position.distY = this.__position.endY - this.__position.startY;
 
+      let distX = this.__position.distX;
+      let distY = this.__position.distY;
+
       let currentOffset = this._getSwipeCurrentOffest(); 
-      let positionOffset = this.swipeDirection == 'horizontal' ? this.__position.distX : this.__position.distY;
+      let positionOffset = this.swipeDirection == 'horizontal' ? distX : distY;
 
       if (!this.__swipeThresholdCrossed && Math.abs(positionOffset) <= this.swipeRestraint) {
+        return;
+      }
+
+      if((this.swipeDirection == 'horizontal' && Math.abs(distY) >  Math.abs(distX)) || 
+        (this.swipeDirection == 'vertical' && Math.abs(distX) >  Math.abs(distY))) {
         return;
       }
 
