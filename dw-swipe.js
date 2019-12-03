@@ -264,20 +264,18 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    * @protected
    */
   _getSwipeCurrentSlideIndex() {
-    let currentSlide = 0;
+    let currentSlide;
     let swipeSlideElements = this._getSwipeSlideElements();
     let swipeContainerBoundry = this._swipeContainerBoundry();
     let swipeContainerTopLength = this.swipeDirection == 'horizontal' ? swipeContainerBoundry.left : swipeContainerBoundry.top;
-    let swipeContainerBottomLength = this.swipeDirection == 'horizontal' ? swipeContainerBoundry.right : swipeContainerBoundry.bottom;
 
     forEach(swipeSlideElements, (element, index)=> {
       let elementBoundary = element.getBoundingClientRect();
 
       let elmentTopLength = this.swipeDirection == 'horizontal' ? elementBoundary.left : elementBoundary.top;
-
-      let elementBottomLength = this.swipeDirection == 'horizontal' ? elementBoundary.right : elementBoundary.bottom;
-      if (Math.trunc(elmentTopLength) >= Math.trunc(swipeContainerTopLength) && Math.trunc(elementBottomLength) <= Math.trunc(swipeContainerBottomLength)) {
+      if (Math.trunc(elmentTopLength) >= Math.trunc(swipeContainerTopLength)) {
         currentSlide = index;
+        return false;
       }
     });
     return currentSlide;
@@ -321,10 +319,19 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    */
   _getSwipeCurrentOffest() {
     let element =  this._getSwipeSlideEl(this.__currentSlideIndex);
-    if (this.swipeDirection == 'horizontal') {
-      return element && element.offsetLeft || 0;
+    let offset = (this.swipeDirection == 'horizontal')? element && element.offsetLeft || 0: element && element.offsetTop || 0;
+    
+    //If slider has no more slide a next slide
+    if ((offset + this._getSwipeContainerLength()) >= this._getSwipeSliderLength()) {
+      offset = this._getSwipeSliderLength() - this._getSwipeContainerLength();
     }
-    return element && element.offsetTop || 0;
+
+    //If current slide is first element of slider.
+    if(offset < 0) {
+      offset = 0;
+    }
+
+    return offset;
   }
 
   /**
@@ -458,7 +465,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       }
 
       //If current slides is first slide then swipe is not move prev
-      if(currentOffset == 0) {
+      if(currentOffset == 0 && positionOffset > 0) {
         return;
       }
       
@@ -472,7 +479,14 @@ export const DwSwipe = (baseElement) => class extends baseElement {
         this.__swipeDisableTransition();
       }
 
-      this._swipeScrollToPosition(currentOffset - positionOffset);
+      let movePosition = currentOffset - positionOffset;
+
+      //If move position is greater then continer size
+      if ((movePosition + this._getSwipeContainerLength()) >= this._getSwipeSliderLength()) {
+        movePosition = this._getSwipeSliderLength() - this._getSwipeContainerLength();
+      }
+
+      this._swipeScrollToPosition(movePosition);
     }
   }
 
