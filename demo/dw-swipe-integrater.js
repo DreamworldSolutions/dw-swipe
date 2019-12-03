@@ -65,6 +65,7 @@ export class DwSwipeIntegrater extends DwSwipe(LitElement) {
           <div class='dw-swipe-child'>7</div>
           <div class='dw-swipe-child'>8</div>
           <div class='dw-swipe-child'>9</div>
+          <div class='dw-swipe-child'>10</div>
         </div>
       </div>
     `
