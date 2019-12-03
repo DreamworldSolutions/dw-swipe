@@ -215,9 +215,9 @@ export const DwSwipe = (baseElement) => class extends baseElement {
   _swipeScrollToPosition(pos) {
 
     if (this.swipeDirection == 'horizontal') {
-      this._swipeSliderFrame.style[this.__webkitOrNot()] = `translate3d(${-1 * pos}px, 0, 0)`;
+      this._swipeSliderFrame.style.left = -1 * pos + 'px';
     } else {
-      this._swipeSliderFrame.style[this.__webkitOrNot()] = `translate3d(0, ${-1 * pos}px, 0)`;
+      this._swipeSliderFrame.style.top = -1 * pos + 'px';
     }
   }
 
@@ -266,14 +266,11 @@ export const DwSwipe = (baseElement) => class extends baseElement {
   _getSwipeCurrentSlideIndex() {
     let currentSlide;
     let swipeSlideElements = this._getSwipeSlideElements();
-    let swipeContainerBoundry = this._swipeContainerBoundry();
-    let swipeContainerTopLength = this.swipeDirection == 'horizontal' ? swipeContainerBoundry.left : swipeContainerBoundry.top;
+    let swipeSliderTop = this._getSwipeSliderTop();
 
     forEach(swipeSlideElements, (element, index)=> {
-      let elementBoundary = element.getBoundingClientRect();
-
-      let elmentTopLength = this.swipeDirection == 'horizontal' ? elementBoundary.left : elementBoundary.top;
-      if (Math.trunc(elmentTopLength) >= Math.trunc(swipeContainerTopLength)) {
+      let elementTop = this.swipeDirection == 'horizontal'? element.offsetLeft : element.offsetTop;
+      if(Math.abs(swipeSliderTop) <= Math.abs(elementTop)) {
         currentSlide = index;
         return false;
       }
@@ -314,6 +311,17 @@ export const DwSwipe = (baseElement) => class extends baseElement {
   }
 
   /**
+   * @returns {Numner} swipe slider top.
+   * @protected
+  */
+ _getSwipeSliderTop() {
+   if (this.swipeDirection == 'horizontal') {
+     return this._swipeSliderFrame && this._swipeSliderFrame.offsetLeft || 0;
+   }
+   return this._swipeSliderFrame && this._swipeSliderFrame.offsetTop || 0;
+ }
+
+  /**
    * @return {Number} current slide top length.
    * @protected
    */
@@ -343,6 +351,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       if(!this.swipeDisabled) {
         this._swipeContainer.style.overflow = 'hidden';
         this._swipeContainer.style.overscrollBehavior = 'none';
+        this._swipeContainer.style.position = 'relative';
         return;
       }
       this._swipeContainer.style.overflow = 'auto';
@@ -360,13 +369,13 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       this._swipeSliderFrame.style.position = 'relative';
       this._swipeSliderFrame.style.flexDirection = (this.swipeDirection == 'horizontal') ? 'row' : 'column';
       if (this.swipeDirection == 'horizontal') {
-        this._swipeSliderFrame.style.width = this._swipeSliderFrame.scrollWidth + 'px';
+        this._swipeSliderFrame.style.minWidth = 'fit-content';
         this._swipeSliderFrame.style.height = '100%';
       }
 
       if (this.swipeDirection === 'vertical') {
         this._swipeSliderFrame.style.width = '100%';
-        this._swipeSliderFrame.style.height = this._swipeSliderFrame.scrollHeight + 'px';
+        this._swipeSliderFrame.style.minHeight = 'fit-content';
       }
     }
   }
@@ -589,18 +598,5 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       distX: 0,
       distY: 0
     };
-  }
-
-  /**
-   * Determine if browser supports unprefixed transform property.
-   * Google Chrome since version 26 supports prefix-less transform
-   * @returns {string} - Transform property supported by client.
-   */
-  __webkitOrNot() {
-    const style = document.documentElement.style;
-    if (typeof style.transform === 'string') {
-      return 'transform';
-    }
-    return 'WebkitTransform';
   }
 }
