@@ -360,13 +360,13 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       this._swipeSliderFrame.style.position = 'relative';
       this._swipeSliderFrame.style.flexDirection = (this.swipeDirection == 'horizontal') ? 'row' : 'column';
       if (this.swipeDirection == 'horizontal') {
-        this._swipeSliderFrame.style.width = this._swipeSliderFrame.scrollWidth + 'px';
+        this._swipeSliderFrame.style.minWidth = 'fit-content';
         this._swipeSliderFrame.style.height = '100%';
       }
 
       if (this.swipeDirection === 'vertical') {
         this._swipeSliderFrame.style.width = '100%';
-        this._swipeSliderFrame.style.height = this._swipeSliderFrame.scrollHeight + 'px';
+        this._swipeSliderFrame.style.minHeight = 'fit-content';
       }
     }
   }
