@@ -467,17 +467,18 @@ export const DwSwipe = (baseElement) => class extends baseElement {
         return;
       }
 
+      //If user has moved a lot in opposite direction than the targetted travel duration, skip processing
       if((this.swipeDirection == 'horizontal' && Math.abs(distY) >  Math.abs(distX)) || 
         (this.swipeDirection == 'vertical' && Math.abs(distX) >  Math.abs(distY))) {
         return;
       }
 
-      //If current slides is first slide then swipe is not move prev
+      //When reached at the start (first slide) the no further drag to the right is allowed.
       if(currentOffset == 0 && positionOffset > 0) {
         return;
       }
       
-      //If current slides is last slide then swipe is not move next
+      //When reached at the end then no further drag to the left is allowed.
       if ((currentOffset + this._getSwipeContainerLength()) >= this._getSwipeSliderLength() && positionOffset < 0) {
         return;
       }
@@ -489,7 +490,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
 
       let movePosition = currentOffset - positionOffset;
 
-      //If move position is greater then continer size
+      //If new scroll position is causing over-scroll, limit it.
       if ((movePosition + this._getSwipeContainerLength()) >= this._getSwipeSliderLength()) {
         movePosition = this._getSwipeSliderLength() - this._getSwipeContainerLength();
       }
