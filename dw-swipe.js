@@ -225,7 +225,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    * Swipe to specific index.
    * @protected
    */
-  _swipeSctollToIndex(index) {
+  _swipeScrollToIndex(index) {
     this.__swipeEnableTransition();
     let element = this._getSwipeSlideEl(index) || this._getSwipeSlideEl(0);
     let offset = this.swipeDirection == 'horizontal' ? element.offsetLeft: element.offsetTop;
