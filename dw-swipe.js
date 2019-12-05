@@ -225,7 +225,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    * Swipe to specific index.
    * @protected
    */
-  _swipeSctollToIndex(index) {
+  _swipeScrollToIndex(index) {
     this.__swipeEnableTransition();
     let element = this._getSwipeSlideEl(index) || this._getSwipeSlideEl(0);
     let offset = this.swipeDirection == 'horizontal' ? element.offsetLeft: element.offsetTop;
@@ -264,20 +264,18 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    * @protected
    */
   _getSwipeCurrentSlideIndex() {
-    let currentSlide = 0;
+    let currentSlide;
     let swipeSlideElements = this._getSwipeSlideElements();
     let swipeContainerBoundry = this._swipeContainerBoundry();
     let swipeContainerTopLength = this.swipeDirection == 'horizontal' ? swipeContainerBoundry.left : swipeContainerBoundry.top;
-    let swipeContainerBottomLength = this.swipeDirection == 'horizontal' ? swipeContainerBoundry.right : swipeContainerBoundry.bottom;
 
     forEach(swipeSlideElements, (element, index)=> {
       let elementBoundary = element.getBoundingClientRect();
 
       let elmentTopLength = this.swipeDirection == 'horizontal' ? elementBoundary.left : elementBoundary.top;
-
-      let elementBottomLength = this.swipeDirection == 'horizontal' ? elementBoundary.right : elementBoundary.bottom;
-      if (Math.trunc(elmentTopLength) >= Math.trunc(swipeContainerTopLength) && Math.trunc(elementBottomLength) <= Math.trunc(swipeContainerBottomLength)) {
+      if (Math.trunc(elmentTopLength) >= Math.trunc(swipeContainerTopLength)) {
         currentSlide = index;
+        return false;
       }
     });
     return currentSlide;
@@ -321,10 +319,19 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    */
   _getSwipeCurrentOffest() {
     let element =  this._getSwipeSlideEl(this.__currentSlideIndex);
-    if (this.swipeDirection == 'horizontal') {
-      return element && element.offsetLeft || 0;
+    let offset = (this.swipeDirection == 'horizontal')? element && element.offsetLeft || 0: element && element.offsetTop || 0;
+    
+    //If slider has no more slide a next slide
+    if ((offset + this._getSwipeContainerLength()) >= this._getSwipeSliderLength()) {
+      offset = this._getSwipeSliderLength() - this._getSwipeContainerLength();
     }
-    return element && element.offsetTop || 0;
+
+    //If current slide is first element of slider.
+    if(offset < 0) {
+      offset = 0;
+    }
+
+    return offset;
   }
 
   /**
@@ -353,13 +360,13 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       this._swipeSliderFrame.style.position = 'relative';
       this._swipeSliderFrame.style.flexDirection = (this.swipeDirection == 'horizontal') ? 'row' : 'column';
       if (this.swipeDirection == 'horizontal') {
-        this._swipeSliderFrame.style.width = this._swipeSliderFrame.scrollWidth + 'px';
+        this._swipeSliderFrame.style.minWidth = 'fit-content';
         this._swipeSliderFrame.style.height = '100%';
       }
 
       if (this.swipeDirection === 'vertical') {
         this._swipeSliderFrame.style.width = '100%';
-        this._swipeSliderFrame.style.height = this._swipeSliderFrame.scrollHeight + 'px';
+        this._swipeSliderFrame.style.minHeight = 'fit-content';
       }
     }
   }
@@ -450,19 +457,28 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       this.__position.distX = this.__position.endX - this.__position.startX;
       this.__position.distY = this.__position.endY - this.__position.startY;
 
+      let distX = this.__position.distX;
+      let distY = this.__position.distY;
+
       let currentOffset = this._getSwipeCurrentOffest(); 
-      let positionOffset = this.swipeDirection == 'horizontal' ? this.__position.distX : this.__position.distY;
+      let positionOffset = this.swipeDirection == 'horizontal' ? distX : distY;
 
       if (!this.__swipeThresholdCrossed && Math.abs(positionOffset) <= this.swipeRestraint) {
         return;
       }
 
-      //If current slides is first slide then swipe is not move prev
-      if(currentOffset == 0) {
+      //If user has moved a lot in opposite direction than the targetted travel duration, skip processing
+      if((this.swipeDirection == 'horizontal' && Math.abs(distY) >  Math.abs(distX)) || 
+        (this.swipeDirection == 'vertical' && Math.abs(distX) >  Math.abs(distY))) {
+        return;
+      }
+
+      //When reached at the start (first slide) the no further drag to the right is allowed.
+      if(currentOffset == 0 && positionOffset > 0) {
         return;
       }
       
-      //If current slides is last slide then swipe is not move next
+      //When reached at the end then no further drag to the left is allowed.
       if ((currentOffset + this._getSwipeContainerLength()) >= this._getSwipeSliderLength() && positionOffset < 0) {
         return;
       }
@@ -472,7 +488,14 @@ export const DwSwipe = (baseElement) => class extends baseElement {
         this.__swipeDisableTransition();
       }
 
-      this._swipeScrollToPosition(currentOffset - positionOffset);
+      let movePosition = currentOffset - positionOffset;
+
+      //If new scroll position is causing over-scroll, limit it.
+      if ((movePosition + this._getSwipeContainerLength()) >= this._getSwipeSliderLength()) {
+        movePosition = this._getSwipeSliderLength() - this._getSwipeContainerLength();
+      }
+
+      this._swipeScrollToPosition(movePosition);
     }
   }
 
