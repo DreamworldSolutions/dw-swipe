@@ -223,10 +223,17 @@ export const DwSwipe = (baseElement) => class extends baseElement {
 
   /**
    * Swipe to specific index.
+   * @param {Number} index Index up to which slide you have to swipe
+   * @param {Boolean} disableTransition swipe without animation then passed this argument as a true.
    * @protected
    */
-  _swipeScrollToIndex(index) {
-    this.__swipeEnableTransition();
+  _swipeScrollToIndex(index, disableTransition) {
+    if(disableTransition) {
+      this.__swipeDisableTransition();
+    } else {
+      this.__swipeEnableTransition();
+    }
+
     let element = this._getSwipeSlideEl(index) || this._getSwipeSlideEl(0);
     let offset = this.swipeDirection == 'horizontal' ? element.offsetLeft: element.offsetTop;
     //If preve element is first element of slider.
