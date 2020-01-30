@@ -1,4 +1,5 @@
 import forEach from 'lodash-es/forEach';
+import debounce from 'lodash-es/debounce';
 export const DwSwipe = (baseElement) => class extends baseElement {
   static get properties() {
     return {
@@ -49,6 +50,8 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     this.__swipeStart = this.__swipeStart.bind(this);
     this.__swipeEnd = this.__swipeEnd.bind(this);
     this.__swipeMove = this.__swipeMove.bind(this);
+    this.__swipeResetCurrentSlideindex = debounce(this.__swipeResetCurrentSlideindex.bind(this), 2000);
+
     this.swipeDisabled = false;
   }
 
@@ -134,15 +137,34 @@ export const DwSwipe = (baseElement) => class extends baseElement {
   }
 
   /**
+   * Find next slide index.
+   * @protected
+   */
+  _swipeFindNextSlideIndex() {
+    let currentSlideIndex = this.__currentSlideIndex || this._getSwipeCurrentSlideIndex();
+    let swipeMultiplier = this.swipeMultiplier > 0 ? this.swipeMultiplier: 1;
+    let newSlideIndex = currentSlideIndex + swipeMultiplier;
+    return (newSlideIndex > this._getSwipeSlidesLength()) ? this._getSwipeSlidesLength() : newSlideIndex;
+  }
+
+  /**
+   * Find prev slide index.
+   */
+  _swipeFindPrevSlideIndex() {
+    let currentSlideIndex = this.__currentSlideIndex || this._getSwipeCurrentSlideIndex();
+    let swipeMultiplier = this.swipeMultiplier > 0 ? this.swipeMultiplier: 1;
+    let newSlideIndex = currentSlideIndex - swipeMultiplier;
+    return (newSlideIndex < 0)? 0: newSlideIndex;
+  }
+
+  /**
    * Find next item top/left position.
    * @protected
    */
   _swipeFindNext() {
     let swipeMultiplier = this.swipeMultiplier > 0 ? this.swipeMultiplier: 1;
     let newIndex =  this.__currentSlideIndex + swipeMultiplier;
-    let swipeSlideElements = this._getSwipeSlideElements();
-    let lastSlideElementIndex = swipeSlideElements.length - 1 || 0;
-    let element = this._getSwipeSlideEl(newIndex) || this._getSwipeSlideEl(lastSlideElementIndex);
+    let element = this._getSwipeSlideEl(newIndex) || this._getSwipeSlideEl(this._getSwipeSlidesLength());
     return this.swipeDirection == 'horizontal' ? element.offsetLeft: element.offsetTop;
   }
 
@@ -189,6 +211,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     }
 
     this._swipeScrollToPosition(offset);
+    this.__currentSlideIndex = this._swipeFindNextSlideIndex();
     this.dispatchEvent(new CustomEvent('swipe-next', { detail: {offset}}, { bubbles: false}));
   }
 
@@ -205,6 +228,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     }
 
     this._swipeScrollToPosition(offset);
+    this.__currentSlideIndex = this._swipeFindPrevSlideIndex();
     this.dispatchEvent(new CustomEvent('swipe-prev', { detail: {offset}}, { bubbles: false}));
   }
 
@@ -256,6 +280,16 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    */
   _getSwipeSlideElements() {
     return this._swipeSliderFrame && this._swipeSliderFrame.children || [];
+  }
+
+  /**
+   * @returns {Number} slides length.
+   * @protected
+   */
+  _getSwipeSlidesLength() {
+    let swipeSlideElements = this._getSwipeSlideElements();
+    let length = swipeSlideElements && swipeSlideElements.length - 1;
+    return length > 0? length : 0;
   }
 
   /**
@@ -448,8 +482,22 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     this.__swipePointerDown = true;
     this.__position.startX = this.__swipeEventUnify(e).clientX;
     this.__position.startY = this.__swipeEventUnify(e).clientY;
-    this.__currentSlideIndex = this._getSwipeCurrentSlideIndex();
+    if(this.__currentSlideIndex === undefined) {
+      this.__currentSlideIndex = this._getSwipeCurrentSlideIndex();
+    } else {
+      //If already current slide index set then reset after 2 seconds.
+      this.__swipeResetCurrentSlideindex();
+    }
     this.__swipeThresholdCrossed = false;
+  }
+
+
+  /**
+   * Reset current index.
+   * @private
+   */
+  __swipeResetCurrentSlideindex() {
+    this.__currentSlideIndex = undefined;
   }
 
   /**
