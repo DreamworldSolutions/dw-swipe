@@ -245,6 +245,66 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     }
   }
 
+  _getSwipeValidPosition(pos) {
+    if (pos < 0) {
+      return 0;
+    } 
+     
+    if((pos + this._getSwipeContainerLength()) >= this._getSwipeSliderLength()) {
+      return this._getSwipeSliderLength() - this._getSwipeContainerLength();
+    }
+
+    return pos;
+  }
+
+  /**
+   * Change scroll based on given `pixel` and `topScroll`.
+   * @param {Number} pixel How many pixel scroll changed?
+   * @param {Boolean} topScroll which side scroll is changed?
+   * @protected
+   */
+  _swipeScroll(pixel, topScroll) {
+    let scrollLength = this._getSwipeTransformLength();
+
+    if(isNaN(scrollLength)) {
+      return false;
+    }
+
+    //If already top.
+    if(topScroll && scrollLength <= 0) {
+      return false;
+    }
+    
+    //If alredy bottom.
+    if(!topScroll && (scrollLength + this._getSwipeContainerLength()) >= this._getSwipeSliderLength()) {
+      return false;
+    }
+    
+    let newScrollLength = (topScroll)? scrollLength - pixel: scrollLength + pixel;
+    newScrollLength = this._getSwipeValidPosition(newScrollLength);
+    this._swipeScrollToPosition(newScrollLength);
+    return true;
+  }
+
+  /**
+   * @returns {Number} swipe transform length based on `swipeDirection`.
+   * @protected
+   */
+  _getSwipeTransformLength() {
+    if (!this._swipeSliderFrame) {
+      return;
+    }
+
+    let values = this._swipeSliderFrame.style[this.__webkitOrNot()].split(/\w+\(|\);?/);
+    let transform = values[1].split(/,\s?/g).map(parseInt);
+
+    if (this.swipeDirection == 'horizontal') {
+      return Math.abs(transform[0]);
+    }
+
+    return Math.abs(transform[1]);
+  }
+
   /**
    * Swipe to specific index.
    * @param {Number} index Index up to which slide you have to swipe
