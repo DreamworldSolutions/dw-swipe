@@ -312,7 +312,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     }
 
     let values = this._swipeSliderFrame.style[this.__webkitOrNot()].split(/\w+\(|\);?/);
-    let transform = values[1].split(/,\s?/g).map(parseInt);
+    let transform = values[1] && values[1].split(/,\s?/g).map(parseInt) || [];
 
     if (this.swipeDirection == 'horizontal') {
       return Math.abs(transform[0]);
