@@ -245,6 +245,10 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     }
   }
 
+  /**
+   * @returns {Number} valid position return.
+   * @protected
+   */
   _getSwipeValidPosition(pos) {
     if (pos < 0) {
       return 0;
