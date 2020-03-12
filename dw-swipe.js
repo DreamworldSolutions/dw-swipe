@@ -271,12 +271,12 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     }
 
     //If already top.
-    if(topScroll && scrollLength <= 0) {
+    if(topScroll && !this._swipeCanScrollTop()) {
       return false;
     }
     
     //If alredy bottom.
-    if(!topScroll && (scrollLength + this._getSwipeContainerLength()) >= this._getSwipeSliderLength()) {
+    if(!topScroll && !this._swipeCanScrollBottom()) {
       return false;
     }
     
@@ -284,6 +284,22 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     newScrollLength = this._getSwipeValidPosition(newScrollLength);
     this._swipeScrollToPosition(newScrollLength);
     return true;
+  }
+
+  /**
+   * @returns {Boolean} `true` when possible to scroll top, `false` otherwise.
+   * @protected
+   */
+  _swipeCanScrollTop() {
+    return this._getSwipeTransformLength() > 0;
+  }
+
+  /**
+   * @returns {Boolean} `true` when possible to scroll bottom, `false` otherwise.
+   * @protected
+   */
+  _swipeCanScrollBottom() {
+    return (this._getSwipeTransformLength() + this._getSwipeContainerLength()) < this._getSwipeSliderLength();
   }
 
   /**
