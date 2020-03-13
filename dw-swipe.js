@@ -635,17 +635,17 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    * @private
    */
   __swipeEnd(e) {
-    if (this.__swipePointerDown) {
-      this.__swipePointerDown = false;
+    if (this.__swipePointerDown && this.__swipeThresholdCrossed) {
       this.__position.endX = this.__swipeEventUnify(e).clientX;
       this.__position.endY = this.__swipeEventUnify(e).clientY;
-
       this.__position.distX = this.__position.endX - this.__position.startX;
       this.__position.distY = this.__position.endY - this.__position.startY;
       this.__swipeEnableTransition();
       this.__fireSwipeEvent()
-      this.__resetPosition();
     }
+    
+    this.__swipePointerDown = false;
+    this.__resetPosition();
   }
 
   /**
@@ -683,10 +683,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       return;
     }
 
-    //Avoid unnecessary swipe restore
-    if(this.__swipeThresholdCrossed) {
-      this._swipeRestore();
-    }
+    this._swipeRestore();
   }
 
   /**
