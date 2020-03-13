@@ -44,9 +44,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     this.swipeDirection = 'horizontal';
     this.swipeMultiplier = 1;
     
-    this.__swipePointerDown = false;
-    this.__resetPosition();
-    
+    this.__swipeResetInstanceProps();
     this.__swipeStart = this.__swipeStart.bind(this);
     this.__swipeEnd = this.__swipeEnd.bind(this);
     this.__swipeMove = this.__swipeMove.bind(this);
@@ -100,6 +98,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       return;
     }
 
+    this.__swipeResetInstanceProps();
     this.updateComplete.then(() => {
       this._swipeContainer = this.shadowRoot.querySelector('.dw-swipe-container');
       this._swipeSliderFrame = this.shadowRoot.querySelector('.dw-swipe-slider-frame');
@@ -125,6 +124,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
   _swipeDestroy() {
     this._swipeUpdateStyling();
     this.__swipeUnbindEventListner();
+    this.__swipeResetInstanceProps();
   }
 
   /**
@@ -245,10 +245,6 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     }
   }
 
-  /**
-   * @returns {Number} valid position return.
-   * @protected
-   */
   _getSwipeValidPosition(pos) {
     if (pos < 0) {
       return 0;
@@ -687,7 +683,10 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       return;
     }
 
-    this._swipeRestore();
+    //Avoid unnecessary swipe restore
+    if(this.__swipeThresholdCrossed) {
+      this._swipeRestore();
+    }
   }
 
   /**
@@ -725,6 +724,16 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       distX: 0,
       distY: 0
     };
+  }
+
+  /**
+   * Reset swipe instance props.
+   * @protected
+   */
+  __swipeResetInstanceProps() {
+    this.__resetPosition();
+    this.__swipePointerDown = false;
+    this.__currentSlideIndex = undefined;
   }
 
   /**
