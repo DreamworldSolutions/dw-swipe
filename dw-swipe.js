@@ -141,8 +141,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    * @protected
    */
   _swipeFindNextSlideIndex() {
-    let currentSlideIndex = this.__currentSlideIndex || this._getSwipeCurrentSlideIndex();
-    let swipeMultiplier = this.swipeMultiplier > 0 ? this.swipeMultiplier: 1;
+    let currentSlideIndex = this.__currentSlideIndex === undefined ? this._getSwipeCurrentSlideIndex() : this.__currentSlideIndex;
     let newSlideIndex = currentSlideIndex + swipeMultiplier;
     return (newSlideIndex > this._getSwipeSlidesLength()) ? this._getSwipeSlidesLength() : newSlideIndex;
   }
@@ -151,7 +150,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    * Find prev slide index.
    */
   _swipeFindPrevSlideIndex() {
-    let currentSlideIndex = this.__currentSlideIndex || this._getSwipeCurrentSlideIndex();
+    let currentSlideIndex = this.__currentSlideIndex === undefined ? this._getSwipeCurrentSlideIndex() : this.__currentSlideIndex;
     let swipeMultiplier = this.swipeMultiplier > 0 ? this.swipeMultiplier: 1;
     let newSlideIndex = currentSlideIndex - swipeMultiplier;
     return (newSlideIndex < 0)? 0: newSlideIndex;
@@ -484,9 +483,6 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     this.__position.startY = this.__swipeEventUnify(e).clientY;
     if(this.__currentSlideIndex === undefined) {
       this.__currentSlideIndex = this._getSwipeCurrentSlideIndex();
-    } else {
-      //If already current slide index set then reset after 2 seconds.
-      this.__swipeResetCurrentSlideindex();
     }
     this.__swipeThresholdCrossed = false;
   }
@@ -494,10 +490,14 @@ export const DwSwipe = (baseElement) => class extends baseElement {
 
   /**
    * Reset current index.
+   * When the swipe process is not completed then reset current index.
    * @private
    */
   __swipeResetCurrentSlideindex() {
-    this.__currentSlideIndex = undefined;
+    //If the swipe process is not completed.
+    if(!this.__swipePointerDown) {
+      this.__currentSlideIndex = undefined;
+    }
   }
 
   /**
@@ -569,6 +569,11 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       this.__swipeEnableTransition();
       this.__fireSwipeEvent()
       this.__resetPosition();
+    }
+
+    //If already current slide index set then reset after 2 seconds.
+    if(this.__currentSlideIndex !== undefined) {
+      this.__swipeResetCurrentSlideindex();
     }
   }
 
