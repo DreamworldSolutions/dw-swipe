@@ -142,6 +142,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    */
   _swipeFindNextSlideIndex() {
     let currentSlideIndex = this.__currentSlideIndex === undefined ? this._getSwipeCurrentSlideIndex() : this.__currentSlideIndex;
+    let swipeMultiplier = this.swipeMultiplier > 0 ? this.swipeMultiplier: 1;
     let newSlideIndex = currentSlideIndex + swipeMultiplier;
     return (newSlideIndex > this._getSwipeSlidesLength()) ? this._getSwipeSlidesLength() : newSlideIndex;
   }
