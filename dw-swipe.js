@@ -477,12 +477,16 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       this._swipeSliderFrame.style.position = 'relative';
       this._swipeSliderFrame.style.flexDirection = (this.swipeDirection == 'horizontal') ? 'row' : 'column';
       if (this.swipeDirection == 'horizontal') {
+        this._swipeSliderFrame.style.minWidth = '-webkit-fit-content';
+        this._swipeSliderFrame.style.minWidth = '-moz-fit-content';
         this._swipeSliderFrame.style.minWidth = 'fit-content';
         this._swipeSliderFrame.style.height = '100%';
       }
 
       if (this.swipeDirection === 'vertical') {
         this._swipeSliderFrame.style.width = '100%';
+        this._swipeSliderFrame.style.minHeight = '-webkit-fit-content';
+        this._swipeSliderFrame.style.minHeight = '-moz-fit-content';
         this._swipeSliderFrame.style.minHeight = 'fit-content';
       }
     }
@@ -741,7 +745,8 @@ export const DwSwipe = (baseElement) => class extends baseElement {
 
   /**
    * Determine if browser supports unprefixed transform property.
-   * Google Chrome since version 26 supports prefix-less transform
+   * Google Chrome since version 26 supports prefix-less transform.
+   * Firefox since version 50 support prefix-less transform.
    * @returns {string} - Transform property supported by client.
    */
   __webkitOrNot() {
@@ -749,6 +754,11 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     if (typeof style.transform === 'string') {
       return 'transform';
     }
+
+    if(typeof style.MozTransform === 'string') {
+      return 'MozTransform';
+    }
+
     return 'WebkitTransform';
   }
 }
