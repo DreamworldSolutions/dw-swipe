@@ -44,9 +44,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     this.swipeDirection = 'horizontal';
     this.swipeMultiplier = 1;
     
-    this.__swipePointerDown = false;
-    this.__resetPosition();
-    
+    this.__swipeResetInstanceProps();
     this.__swipeStart = this.__swipeStart.bind(this);
     this.__swipeEnd = this.__swipeEnd.bind(this);
     this.__swipeMove = this.__swipeMove.bind(this);
@@ -100,6 +98,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       return;
     }
 
+    this.__swipeResetInstanceProps();
     this.updateComplete.then(() => {
       this._swipeContainer = this.shadowRoot.querySelector('.dw-swipe-container');
       this._swipeSliderFrame = this.shadowRoot.querySelector('.dw-swipe-slider-frame');
@@ -125,6 +124,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
   _swipeDestroy() {
     this._swipeUpdateStyling();
     this.__swipeUnbindEventListner();
+    this.__swipeResetInstanceProps();
   }
 
   /**
@@ -243,6 +243,82 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     } else {
       this._swipeSliderFrame.style[this.__webkitOrNot()] = `translate3d(0, ${-1 * pos}px, 0)`;
     }
+  }
+
+  _getSwipeValidPosition(pos) {
+    if (pos < 0) {
+      return 0;
+    } 
+     
+    if((pos + this._getSwipeContainerLength()) >= this._getSwipeSliderLength()) {
+      return this._getSwipeSliderLength() - this._getSwipeContainerLength();
+    }
+
+    return pos;
+  }
+
+  /**
+   * Change scroll based on given `pixel` and `topScroll`.
+   * @param {Number} pixel How many pixel scroll changed?
+   * @param {Boolean} topScroll which side scroll is changed?
+   * @protected
+   */
+  _swipeScroll(pixel, topScroll) {
+    let scrollLength = this._getSwipeTransformLength();
+
+    if(isNaN(scrollLength)) {
+      return false;
+    }
+
+    //If already top.
+    if(topScroll && !this._swipeCanScrollTop()) {
+      return false;
+    }
+    
+    //If alredy bottom.
+    if(!topScroll && !this._swipeCanScrollBottom()) {
+      return false;
+    }
+    
+    let newScrollLength = (topScroll)? scrollLength - pixel: scrollLength + pixel;
+    newScrollLength = this._getSwipeValidPosition(newScrollLength);
+    this._swipeScrollToPosition(newScrollLength);
+    return true;
+  }
+
+  /**
+   * @returns {Boolean} `true` when possible to scroll top, `false` otherwise.
+   * @protected
+   */
+  _swipeCanScrollTop() {
+    return this._getSwipeTransformLength() > 0;
+  }
+
+  /**
+   * @returns {Boolean} `true` when possible to scroll bottom, `false` otherwise.
+   * @protected
+   */
+  _swipeCanScrollBottom() {
+    return (this._getSwipeTransformLength() + this._getSwipeContainerLength()) < this._getSwipeSliderLength();
+  }
+
+  /**
+   * @returns {Number} swipe transform length based on `swipeDirection`.
+   * @protected
+   */
+  _getSwipeTransformLength() {
+    if (!this._swipeSliderFrame) {
+      return;
+    }
+
+    let values = this._swipeSliderFrame.style[this.__webkitOrNot()].split(/\w+\(|\);?/);
+    let transform = values[1] && values[1].split(/,\s?/g).map(parseInt) || [];
+
+    if (this.swipeDirection == 'horizontal') {
+      return Math.abs(transform[0]);
+    }
+
+    return Math.abs(transform[1]);
   }
 
   /**
@@ -559,17 +635,17 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    * @private
    */
   __swipeEnd(e) {
-    if (this.__swipePointerDown) {
-      this.__swipePointerDown = false;
+    if (this.__swipePointerDown && this.__swipeThresholdCrossed) {
       this.__position.endX = this.__swipeEventUnify(e).clientX;
       this.__position.endY = this.__swipeEventUnify(e).clientY;
-
       this.__position.distX = this.__position.endX - this.__position.startX;
       this.__position.distY = this.__position.endY - this.__position.startY;
       this.__swipeEnableTransition();
       this.__fireSwipeEvent()
-      this.__resetPosition();
     }
+    
+    this.__swipePointerDown = false;
+    this.__resetPosition();
   }
 
   /**
@@ -645,6 +721,16 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       distX: 0,
       distY: 0
     };
+  }
+
+  /**
+   * Reset swipe instance props.
+   * @protected
+   */
+  __swipeResetInstanceProps() {
+    this.__resetPosition();
+    this.__swipePointerDown = false;
+    this.__currentSlideIndex = undefined;
   }
 
   /**
