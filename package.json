@@ -13,6 +13,9 @@
     "type": "git",
     "url": "git+https://github.com/DreamworldSolutions/dw-swipe.git"
   },
+  "dependencies": {
+    "reselect": "^4.0.0"
+  },
   "devDependencies": {
     "@webcomponents/webcomponentsjs": "^2.2.10",
     "lit-element": "^2.2.1",
