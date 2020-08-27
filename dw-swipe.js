@@ -1,5 +1,6 @@
 import forEach from 'lodash-es/forEach';
 import debounce from 'lodash-es/debounce';
+import { defaultMemoize } from 'reselect';
 export const DwSwipe = (baseElement) => class extends baseElement {
   static get properties() {
     return {
@@ -49,6 +50,9 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     this.__swipeEnd = this.__swipeEnd.bind(this);
     this.__swipeMove = this.__swipeMove.bind(this);
     this.__swipeResetCurrentSlideindex = debounce(this.__swipeResetCurrentSlideindex.bind(this), 2000);
+
+    //Memoize function for swipe containre Boundary.
+    this.___swipeContainerBoundryMemoize = defaultMemoize(this.___swipeContainerBoundryMemoize.bind(this));
 
     this.swipeDisabled = false;
   }
@@ -141,7 +145,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    * @protected
    */
   _swipeFindNextSlideIndex() {
-    let currentSlideIndex = this.__currentSlideIndex === undefined ? this._getSwipeCurrentSlideIndex() : this.__currentSlideIndex;
+    let currentSlideIndex = this._getSwipeCurrentSlideIndex();
     let swipeMultiplier = this.swipeMultiplier > 0 ? this.swipeMultiplier: 1;
     let newSlideIndex = currentSlideIndex + swipeMultiplier;
     return (newSlideIndex > this._getSwipeSlidesLength()) ? this._getSwipeSlidesLength() : newSlideIndex;
@@ -151,7 +155,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    * Find prev slide index.
    */
   _swipeFindPrevSlideIndex() {
-    let currentSlideIndex = this.__currentSlideIndex === undefined ? this._getSwipeCurrentSlideIndex() : this.__currentSlideIndex;
+    let currentSlideIndex = this._getSwipeCurrentSlideIndex();
     let swipeMultiplier = this.swipeMultiplier > 0 ? this.swipeMultiplier: 1;
     let newSlideIndex = currentSlideIndex - swipeMultiplier;
     return (newSlideIndex < 0)? 0: newSlideIndex;
@@ -369,11 +373,19 @@ export const DwSwipe = (baseElement) => class extends baseElement {
   }
 
   /**
+   * Memoize function of `_swipeContainerBoundry` based on window height and width.
+   * @private
+   */
+  ___swipeContainerBoundryMemoize() {
+    return this._swipeContainer && this._swipeContainer.getBoundingClientRect() || {};
+  }
+
+  /**
    * @returns {Array} swipe container boundry.
    * @protected
    */
   _swipeContainerBoundry() {
-    return this._swipeContainer && this._swipeContainer.getBoundingClientRect() || [];
+    return this.___swipeContainerBoundryMemoize(`${window.innerHeight}-${window.innerWidth}`);
   }
 
   /**
@@ -381,6 +393,11 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    * @protected
    */
   _getSwipeCurrentSlideIndex() {
+    //If current slide index is already defined then avoid to re-compute.
+    if(this.__currentSlideIndex !== undefined) {
+      return this.__currentSlideIndex;
+    }
+
     let currentSlide;
     let swipeSlideElements = this._getSwipeSlideElements();
     let swipeContainerBoundry = this._swipeContainerBoundry();
