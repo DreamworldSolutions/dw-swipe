@@ -62,7 +62,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    */
   set swipeDisabled(value) {
     let oldValue = this.__swipeDisabled;
-    if (oldValue == value || !this.isConnected) {
+    if (oldValue == value) {
       return;
     }
 
