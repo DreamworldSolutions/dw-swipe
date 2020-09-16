@@ -22,7 +22,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
        * these many pixels. 
        * Default value: `25`.
        */
-      swipeRestraint: {type: Number},
+      swipeRestraint: { type: Number },
 
       /**
        * Could be 'horizontal' or 'vertical' (for vertical slider).
@@ -44,7 +44,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     this.swipeRestraint = 25;
     this.swipeDirection = 'horizontal';
     this.swipeMultiplier = 1;
-    
+
     this.__swipeResetInstanceProps();
     this.__swipeStart = this.__swipeStart.bind(this);
     this.__swipeEnd = this.__swipeEnd.bind(this);
@@ -53,7 +53,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
 
     //Memoize function for swipe containre Boundary.
     this.___swipeContainerBoundryMemoize = defaultMemoize(this.___swipeContainerBoundryMemoize.bind(this));
-    
+
     this.swipeDisabled = false;
   }
 
@@ -146,7 +146,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    */
   _swipeFindNextSlideIndex() {
     let currentSlideIndex = this._getSwipeCurrentSlideIndex();
-    let swipeMultiplier = this.swipeMultiplier > 0 ? this.swipeMultiplier: 1;
+    let swipeMultiplier = this.swipeMultiplier > 0 ? this.swipeMultiplier : 1;
     let newSlideIndex = currentSlideIndex + swipeMultiplier;
     return (newSlideIndex > this._getSwipeSlidesLength()) ? this._getSwipeSlidesLength() : newSlideIndex;
   }
@@ -156,9 +156,9 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    */
   _swipeFindPrevSlideIndex() {
     let currentSlideIndex = this._getSwipeCurrentSlideIndex();
-    let swipeMultiplier = this.swipeMultiplier > 0 ? this.swipeMultiplier: 1;
+    let swipeMultiplier = this.swipeMultiplier > 0 ? this.swipeMultiplier : 1;
     let newSlideIndex = currentSlideIndex - swipeMultiplier;
-    return (newSlideIndex < 0)? 0: newSlideIndex;
+    return (newSlideIndex < 0) ? 0 : newSlideIndex;
   }
 
   /**
@@ -166,10 +166,10 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    * @protected
    */
   _swipeFindNext() {
-    let swipeMultiplier = this.swipeMultiplier > 0 ? this.swipeMultiplier: 1;
-    let newIndex =  this.__currentSlideIndex + swipeMultiplier;
+    let swipeMultiplier = this.swipeMultiplier > 0 ? this.swipeMultiplier : 1;
+    let newIndex = this.__currentSlideIndex + swipeMultiplier;
     let element = this._getSwipeSlideEl(newIndex) || this._getSwipeSlideEl(this._getSwipeSlidesLength());
-    return this.swipeDirection == 'horizontal' ? element.offsetLeft: element.offsetTop;
+    return this.swipeDirection == 'horizontal' ? element.offsetLeft : element.offsetTop;
   }
 
   /**
@@ -177,10 +177,10 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    * @protected
    */
   _swipeFindPrev() {
-    let swipeMultiplier = this.swipeMultiplier > 0 ? this.swipeMultiplier: 1;
-    let newIndex =  this.__currentSlideIndex - swipeMultiplier;
+    let swipeMultiplier = this.swipeMultiplier > 0 ? this.swipeMultiplier : 1;
+    let newIndex = this.__currentSlideIndex - swipeMultiplier;
     let element = this._getSwipeSlideEl(newIndex) || this._getSwipeSlideEl(0);
-    return this.swipeDirection == 'horizontal' ? element.offsetLeft: element.offsetTop;
+    return this.swipeDirection == 'horizontal' ? element.offsetLeft : element.offsetTop;
   }
 
   /**
@@ -194,7 +194,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       return;
     }
 
-    if(offset < 0) {
+    if (offset < 0) {
       this._swipeScrollToPosition(0);
       return;
     }
@@ -216,7 +216,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
 
     this._swipeScrollToPosition(offset);
     this.__currentSlideIndex = this._swipeFindNextSlideIndex();
-    this.dispatchEvent(new CustomEvent('swipe-next', { detail: {offset}}, { bubbles: false}));
+    this.dispatchEvent(new CustomEvent('swipe-next', { detail: { offset } }, { bubbles: false }));
   }
 
   /**
@@ -233,7 +233,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
 
     this._swipeScrollToPosition(offset);
     this.__currentSlideIndex = this._swipeFindPrevSlideIndex();
-    this.dispatchEvent(new CustomEvent('swipe-prev', { detail: {offset}}, { bubbles: false}));
+    this.dispatchEvent(new CustomEvent('swipe-prev', { detail: { offset } }, { bubbles: false }));
   }
 
   /**
@@ -252,9 +252,9 @@ export const DwSwipe = (baseElement) => class extends baseElement {
   _getSwipeValidPosition(pos) {
     if (pos < 0) {
       return 0;
-    } 
-     
-    if((pos + this._getSwipeContainerLength()) >= this._getSwipeSliderLength()) {
+    }
+
+    if ((pos + this._getSwipeContainerLength()) >= this._getSwipeSliderLength()) {
       return this._getSwipeSliderLength() - this._getSwipeContainerLength();
     }
 
@@ -270,21 +270,21 @@ export const DwSwipe = (baseElement) => class extends baseElement {
   _swipeScroll(pixel, topScroll) {
     let scrollLength = this._getSwipeTransformLength();
 
-    if(isNaN(scrollLength)) {
+    if (isNaN(scrollLength)) {
       return false;
     }
 
     //If already top.
-    if(topScroll && !this._swipeCanScrollTop()) {
+    if (topScroll && !this._swipeCanScrollTop()) {
       return false;
     }
-    
+
     //If alredy bottom.
-    if(!topScroll && !this._swipeCanScrollBottom()) {
+    if (!topScroll && !this._swipeCanScrollBottom()) {
       return false;
     }
-    
-    let newScrollLength = (topScroll)? scrollLength - pixel: scrollLength + pixel;
+
+    let newScrollLength = (topScroll) ? scrollLength - pixel : scrollLength + pixel;
     newScrollLength = this._getSwipeValidPosition(newScrollLength);
     this._swipeScrollToPosition(newScrollLength);
     return true;
@@ -332,14 +332,14 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    * @protected
    */
   _swipeScrollToIndex(index, disableTransition) {
-    if(disableTransition) {
+    if (disableTransition) {
       this.__swipeDisableTransition();
     } else {
       this.__swipeEnableTransition();
     }
 
     let element = this._getSwipeSlideEl(index) || this._getSwipeSlideEl(0);
-    let offset = this.swipeDirection == 'horizontal' ? element.offsetLeft: element.offsetTop;
+    let offset = this.swipeDirection == 'horizontal' ? element.offsetLeft : element.offsetTop;
     //If preve element is first element of slider.
     if (offset < 0) {
       this._swipeScrollToPosition(0);
@@ -369,7 +369,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
   _getSwipeSlidesLength() {
     let swipeSlideElements = this._getSwipeSlideElements();
     let length = swipeSlideElements && swipeSlideElements.length - 1;
-    return length > 0? length : 0;
+    return length > 0 ? length : 0;
   }
 
   /**
@@ -394,7 +394,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    */
   _getSwipeCurrentSlideIndex() {
     //If current slide index is already defined then avoid to re-compute.
-    if(this.__currentSlideIndex !== undefined) {
+    if (this.__currentSlideIndex !== undefined) {
       return this.__currentSlideIndex;
     }
 
@@ -403,7 +403,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     let swipeContainerBoundry = this._swipeContainerBoundry();
     let swipeContainerTopLength = this.swipeDirection == 'horizontal' ? swipeContainerBoundry.left : swipeContainerBoundry.top;
 
-    forEach(swipeSlideElements, (element, index)=> {
+    forEach(swipeSlideElements, (element, index) => {
       let elementBoundary = element.getBoundingClientRect();
 
       let elmentTopLength = this.swipeDirection == 'horizontal' ? elementBoundary.left : elementBoundary.top;
@@ -452,16 +452,16 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    * @protected
    */
   _getSwipeCurrentOffest() {
-    let element =  this._getSwipeSlideEl(this.__currentSlideIndex);
-    let offset = (this.swipeDirection == 'horizontal')? element && element.offsetLeft || 0: element && element.offsetTop || 0;
-    
+    let element = this._getSwipeSlideEl(this.__currentSlideIndex);
+    let offset = (this.swipeDirection == 'horizontal') ? element && element.offsetLeft || 0 : element && element.offsetTop || 0;
+
     //If slider has no more slide a next slide
     if ((offset + this._getSwipeContainerLength()) >= this._getSwipeSliderLength()) {
       offset = this._getSwipeSliderLength() - this._getSwipeContainerLength();
     }
 
     //If current slide is first element of slider.
-    if(offset < 0) {
+    if (offset < 0) {
       offset = 0;
     }
 
@@ -474,7 +474,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    */
   __swipeManageContainerStyle() {
     if (this._swipeContainer) {
-      if(!this.swipeDisabled) {
+      if (!this.swipeDisabled) {
         this._swipeContainer.style.overflow = 'hidden';
         this._swipeContainer.style.overscrollBehavior = 'none';
         return;
@@ -522,7 +522,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     if (this.swipeDisabled) {
       return;
     }
-    
+
     //For swipe start
     this._swipeContainer.addEventListener('mousedown', this.__swipeStart);
     this._swipeContainer.addEventListener('touchstart', this.__swipeStart);
@@ -572,14 +572,14 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    */
   __swipeStart(e) {
     //Don't start swipe operation when user has used more than 1 finger. 
-    if(e.touches && e.touches.length > 1) {
+    if (e.touches && e.touches.length > 1) {
       return;
     }
-    
+
     this.__swipePointerDown = true;
     this.__position.startX = this.__swipeEventUnify(e).clientX;
     this.__position.startY = this.__swipeEventUnify(e).clientY;
-    if(this.__currentSlideIndex === undefined) {
+    if (this.__currentSlideIndex === undefined) {
       this.__currentSlideIndex = this._getSwipeCurrentSlideIndex();
     }
     this.__swipeThresholdCrossed = false;
@@ -593,7 +593,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    */
   __swipeResetCurrentSlideindex() {
     //If the swipe process is not completed.
-    if(!this.__swipePointerDown) {
+    if (!this.__swipePointerDown) {
       this.__currentSlideIndex = undefined;
     }
   }
@@ -613,7 +613,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       let distX = this.__position.distX;
       let distY = this.__position.distY;
 
-      let currentOffset = this._getSwipeCurrentOffest(); 
+      let currentOffset = this._getSwipeCurrentOffest();
       let positionOffset = this.swipeDirection == 'horizontal' ? distX : distY;
 
       if (!this.__swipeThresholdCrossed && Math.abs(positionOffset) <= this.swipeRestraint) {
@@ -621,22 +621,22 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       }
 
       //If user has moved a lot in opposite direction than the targetted travel duration, skip processing
-      if((this.swipeDirection == 'horizontal' && Math.abs(distY) >  Math.abs(distX)) || 
-        (this.swipeDirection == 'vertical' && Math.abs(distX) >  Math.abs(distY))) {
+      if ((this.swipeDirection == 'horizontal' && Math.abs(distY) > Math.abs(distX)) ||
+        (this.swipeDirection == 'vertical' && Math.abs(distX) > Math.abs(distY))) {
         return;
       }
 
       //When reached at the start (first slide) the no further drag to the right is allowed.
-      if(currentOffset == 0 && positionOffset > 0) {
+      if (currentOffset == 0 && positionOffset > 0) {
         return;
       }
-      
+
       //When reached at the end then no further drag to the left is allowed.
       if ((currentOffset + this._getSwipeContainerLength()) >= this._getSwipeSliderLength() && positionOffset < 0) {
         return;
       }
 
-      if(!this.__swipeThresholdCrossed) {
+      if (!this.__swipeThresholdCrossed) {
         this.__swipeThresholdCrossed = true;
         this.__swipeDisableTransition();
       }
@@ -665,12 +665,12 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       this.__swipeEnableTransition();
       this.__fireSwipeEvent()
     }
-    
+
     this.__swipePointerDown = false;
     this.__resetPosition();
 
     //If already current slide index set then reset after 2 seconds.
-    if(this.__currentSlideIndex !== undefined) {
+    if (this.__currentSlideIndex !== undefined) {
       this.__swipeResetCurrentSlideindex();
     }
   }
@@ -772,7 +772,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       return 'transform';
     }
 
-    if(typeof style.MozTransform === 'string') {
+    if (typeof style.MozTransform === 'string') {
       return 'MozTransform';
     }
 
