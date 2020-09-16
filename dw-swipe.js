@@ -53,7 +53,6 @@ export const DwSwipe = (baseElement) => class extends baseElement {
 
     //Memoize function for swipe containre Boundary.
     this.___swipeContainerBoundryMemoize = defaultMemoize(this.___swipeContainerBoundryMemoize.bind(this));
-
     this.swipeDisabled = false;
   }
 
@@ -62,7 +61,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    */
   set swipeDisabled(value) {
     let oldValue = this.__swipeDisabled;
-    if (oldValue == value || !this.isConnected) {
+    if (oldValue == value) {
       return;
     }
 
