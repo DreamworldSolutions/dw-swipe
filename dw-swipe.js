@@ -319,10 +319,10 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     let transform = values[1] && values[1].split(/,\s?/g).map(parseInt) || [];
 
     if (this.swipeDirection == 'horizontal') {
-      return Math.abs(transform[0]);
+      return Math.abs(transform && transform[0] || 0);
     }
 
-    return Math.abs(transform[1]);
+    return Math.abs(transform && transform[1] || 0);
   }
 
   /**
