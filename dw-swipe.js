@@ -204,10 +204,11 @@ export const DwSwipe = (baseElement) => class extends baseElement {
 
   /**
    * Swipe to next element.
+   * @param {Boolean} disableTransition swipe without animation then passed this argument as a true.
    * @returns {Boolean} next swipe is possible or not.
    * @protected 
    */
-  _swipeNext() {
+  _swipeNext(disableTransition) {
     let offset = this._swipeFindNext();
 
     //If slider has no more slide a next slide
@@ -215,18 +216,22 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       offset = this._getSwipeSliderLength() - this._getSwipeContainerLength();
     }
 
-    this._swipeScrollToPosition(offset);
-    this.__currentSlideIndex = this._swipeFindNextSlideIndex();
-    this.dispatchEvent(new CustomEvent('swipe-next', { detail: { offset } }, { bubbles: false }));
-    return this._swipeCanScrollBottom();
+    if(this._swipeCanScrollBottom()) {
+      this._swipeScrollToPosition(offset, disableTransition);
+      this.__currentSlideIndex = this._swipeFindNextSlideIndex();
+      this.dispatchEvent(new CustomEvent('swipe-next', { detail: { offset } }, { bubbles: false }));
+      return true;
+    }
+    return false;
   }
 
   /**
    * Swipe to prev element.
+   * @param {Boolean} disableTransition swipe without animation then passed this argument as a true.
    * @returns {Boolean} previous swipe is possible or not.
    * @protected
    */
-  _swipePrev() {
+  _swipePrev(disableTransition) {
     let offset = this._swipeFindPrev();
 
     //If preve element is first element of slider.
@@ -234,17 +239,27 @@ export const DwSwipe = (baseElement) => class extends baseElement {
       offset = 0;
     }
 
-    this._swipeScrollToPosition(offset);
-    this.__currentSlideIndex = this._swipeFindPrevSlideIndex();
-    this.dispatchEvent(new CustomEvent('swipe-prev', { detail: { offset } }, { bubbles: false }));
-    return this._swipeCanScrollTop();
+    if(this._swipeCanScrollTop()) {
+      this._swipeScrollToPosition(offset, disableTransition);
+      this.__currentSlideIndex = this._swipeFindPrevSlideIndex();
+      this.dispatchEvent(new CustomEvent('swipe-prev', { detail: { offset } }, { bubbles: false }));
+      return true;
+    }
+
+    return false;
   }
 
   /**
    * Swipe to specific position.
+   * @param {Boolean} disableTransition swipe without animation then passed this argument as a true.
    * @protected
    */
-  _swipeScrollToPosition(pos) {
+  _swipeScrollToPosition(pos, disableTransition) { 
+    if (disableTransition) {
+      this.__swipeDisableTransition();
+    } else {
+      this.__swipeEnableTransition();
+    }
 
     if (this.swipeDirection == 'horizontal') {
       this._swipeSliderFrame.style[this.__webkitOrNot()] = `translate3d(${-1 * pos}px, 0, 0)`;
@@ -336,26 +351,20 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    * @protected
    */
   _swipeScrollToIndex(index, disableTransition) {
-    if (disableTransition) {
-      this.__swipeDisableTransition();
-    } else {
-      this.__swipeEnableTransition();
-    }
-
     let element = this._getSwipeSlideEl(index) || this._getSwipeSlideEl(0);
     let offset = this.swipeDirection == 'horizontal' ? element.offsetLeft : element.offsetTop;
     //If preve element is first element of slider.
     if (offset < 0) {
-      this._swipeScrollToPosition(0);
+      this._swipeScrollToPosition(0, disableTransition);
       return;
     }
 
     //If slider has no more slide a next slide
     if ((offset + this._getSwipeContainerLength()) >= this._getSwipeSliderLength()) {
-      this._swipeScrollToPosition(this._getSwipeSliderLength() - this._getSwipeContainerLength());
+      this._swipeScrollToPosition(this._getSwipeSliderLength() - this._getSwipeContainerLength(), disableTransition);
       return;
     }
-    this._swipeScrollToPosition(offset);
+    this._swipeScrollToPosition(offset, disableTransition);
   }
 
   /**
