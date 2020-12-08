@@ -167,7 +167,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    */
   _swipeFindNext() {
     let swipeMultiplier = this.swipeMultiplier > 0 ? this.swipeMultiplier : 1;
-    let newIndex = this.__currentSlideIndex + swipeMultiplier;
+    let newIndex = this._getSwipeCurrentSlideIndex() + swipeMultiplier;
     let element = this._getSwipeSlideEl(newIndex) || this._getSwipeSlideEl(this._getSwipeSlidesLength());
     return this.swipeDirection == 'horizontal' ? element.offsetLeft : element.offsetTop;
   }
@@ -178,7 +178,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    */
   _swipeFindPrev() {
     let swipeMultiplier = this.swipeMultiplier > 0 ? this.swipeMultiplier : 1;
-    let newIndex = this.__currentSlideIndex - swipeMultiplier;
+    let newIndex = this._getSwipeCurrentSlideIndex() - swipeMultiplier;
     let element = this._getSwipeSlideEl(newIndex) || this._getSwipeSlideEl(0);
     return this.swipeDirection == 'horizontal' ? element.offsetLeft : element.offsetTop;
   }
