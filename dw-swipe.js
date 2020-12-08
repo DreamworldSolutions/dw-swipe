@@ -204,6 +204,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
 
   /**
    * Swipe to next element.
+   * @returns {Boolean} next swipe is possible or not.
    * @protected 
    */
   _swipeNext() {
@@ -217,10 +218,12 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     this._swipeScrollToPosition(offset);
     this.__currentSlideIndex = this._swipeFindNextSlideIndex();
     this.dispatchEvent(new CustomEvent('swipe-next', { detail: { offset } }, { bubbles: false }));
+    return this._swipeCanScrollBottom();
   }
 
   /**
    * Swipe to prev element.
+   * @returns {Boolean} previous swipe is possible or not.
    * @protected
    */
   _swipePrev() {
@@ -234,6 +237,7 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     this._swipeScrollToPosition(offset);
     this.__currentSlideIndex = this._swipeFindPrevSlideIndex();
     this.dispatchEvent(new CustomEvent('swipe-prev', { detail: { offset } }, { bubbles: false }));
+    return this._swipeCanScrollTop();
   }
 
   /**
