@@ -585,9 +585,6 @@ export const DwSwipe = (baseElement) => class extends baseElement {
     this.__swipePointerDown = true;
     this.__position.startX = this.__swipeEventUnify(e).clientX;
     this.__position.startY = this.__swipeEventUnify(e).clientY;
-    if (this.__currentSlideIndex === undefined) {
-      this.__currentSlideIndex = this._getSwipeCurrentSlideIndex();
-    }
     this.__swipeThresholdCrossed = false;
   }
 
@@ -618,6 +615,10 @@ export const DwSwipe = (baseElement) => class extends baseElement {
 
       let distX = this.__position.distX;
       let distY = this.__position.distY;
+
+      if (this.__currentSlideIndex === undefined) {
+        this.__currentSlideIndex = this._getSwipeCurrentSlideIndex();
+      }
 
       let currentOffset = this._getSwipeCurrentOffest();
       let positionOffset = this.swipeDirection == 'horizontal' ? distX : distY;
