@@ -345,6 +345,10 @@ export const DwSwipe = (baseElement) => class extends baseElement {
    */
   _swipeScrollToIndex(index, disableTransition) {
     let element = this._getSwipeSlideEl(index) || this._getSwipeSlideEl(0);
+    if (!element) {
+      console.warn('No swipeable element availabe.');
+      return;
+    }
     let offset = this.swipeDirection == 'horizontal' ? element.offsetLeft : element.offsetTop;
     //If preve element is first element of slider.
     if (offset < 0) {
