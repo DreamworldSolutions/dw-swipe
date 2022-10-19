@@ -64,3 +64,4 @@ e.g.
 | _swipeScrollToPosition(pos) | Swipe to specific position. **pos**: Passed to   swipe position |
 | _swipeScrollToIndex(index, disableTransition) | Swipe to specific Slide (identified by the 0-based index.).|
 | _swipeDestroy() | Destroy a swipe |
+ 
