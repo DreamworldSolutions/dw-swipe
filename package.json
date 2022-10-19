@@ -15,7 +15,7 @@
     "url": "git+https://github.com/DreamworldSolutions/dw-swipe.git"
   },
   "dependencies": {
-    "@dreamworld/pwa-helpers": "^1.13.1",
+    "@dreamworld/pwa-helpers": "^1.14.0",
     "reselect": "^4.0.0"
   },
   "devDependencies": {
